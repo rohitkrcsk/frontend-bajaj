@@ -1,9 +1,20 @@
 import { useState } from "react";
 import axios from "axios";
 
+interface ApiResponse {
+  is_success: boolean;
+  user_id: string;
+  email: string;
+  roll_number: string;
+  numbers: string[];
+  alphabets: string[];
+  highest_alphabet: string[];
+  [key: string]: string | string[] | boolean;
+}
+
 export default function Home() {
   const [inputData, setInputData] = useState("");
-  const [responseData, setResponseData] = useState<any>(null);
+  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +30,7 @@ export default function Home() {
         throw new Error("Invalid JSON format. Must contain a 'data' array.");
       }
 
-      const response = await axios.post(API_URL, parsedData);
+      const response = await axios.post<ApiResponse>(API_URL, parsedData);
       setResponseData(response.data);
     } catch (err) {
       if (err instanceof Error) {
