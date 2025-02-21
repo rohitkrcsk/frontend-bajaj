@@ -1,114 +1,110 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { useState } from "react";
+import axios from "axios";
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [inputData, setInputData] = useState("");
+  const [responseData, setResponseData] = useState<any>(null);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  const API_URL = "https://bajaj-seven-jet.vercel.app/bfhl"; // Replace with your backend URL
+
+  // Handle API Request
+  const handleSubmit = async () => {
+    try {
+      setError(null);
+      const parsedData = JSON.parse(inputData);
+
+      if (!parsedData.data || !Array.isArray(parsedData.data)) {
+        throw new Error("Invalid JSON format. Must contain a 'data' array.");
+      }
+
+      const response = await axios.post(API_URL, parsedData);
+      setResponseData(response.data);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      setResponseData(null);
+    }
+  };
+
+  // Handle Multi-Select Change
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const options = Array.from(e.target.selectedOptions).map((o) => o.value);
+    setSelectedFilters(options);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-700 p-6">
+      <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-2xl">
+        <h1 className="text-3xl font-extrabold text-center mb-6 text-gray-800">
+          🚀 BFHL Data Processor
+        </h1>
+
+        {/* Textarea Input */}
+        <label className="block text-gray-700 font-semibold mb-2">Enter JSON:</label>
+        <textarea
+          className="w-full h-32 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700"
+          placeholder='e.g. { "data": ["A", "1", "B"] }'
+          value={inputData}
+          onChange={(e) => setInputData(e.target.value)}
+        />
+
+        {/* Submit Button */}
+        <button
+          onClick={handleSubmit}
+          className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition transform hover:scale-105"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          🔥 Process Data
+        </button>
+
+        {/* Error Message */}
+        {error && (
+          <p className="mt-4 text-red-600 font-semibold bg-red-100 p-2 rounded-lg text-center">
+            ❌ {error}
+          </p>
+        )}
+
+        {/* Response Section */}
+        {responseData && (
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg border shadow-md">
+            <h2 className="text-lg font-bold mb-3 text-gray-700">📌 Select Data to Display:</h2>
+
+            {/* Multi-Select Dropdown */}
+            <select
+              multiple
+              onChange={handleSelectChange}
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm text-gray-700 focus:ring-2 focus:ring-blue-400"
+            >
+              {Object.keys(responseData).map((key) => (
+                <option key={key} value={key}>
+                  {key}
+                </option>
+              ))}
+            </select>
+
+            {/* Display Filtered Response */}
+            <div className="mt-4">
+              {selectedFilters.length > 0 ? (
+                selectedFilters.map((key) => (
+                  <div
+                    key={key}
+                    className="bg-white p-3 my-2 border border-gray-200 rounded-md shadow-sm text-gray-800"
+                  >
+                    <strong className="text-blue-600">{key}:</strong>
+                    <pre className="text-sm">{JSON.stringify(responseData[key], null, 2)}</pre>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-600 text-sm mt-2">Select options to view data.</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
